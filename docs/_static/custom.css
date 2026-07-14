@@ -1,0 +1,11 @@
+.field-list p {
+    margin-bottom: 1em !important;
+}
+
+ul.simple ul p {
+    margin-bottom: 0 !important;
+}
+
+p:first-child:empty {
+    margin-bottom: 0 !important;
+}
