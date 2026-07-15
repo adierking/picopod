@@ -1,14 +1,34 @@
 [project]
 name = "picopod"
 version = "0.1.0b1"
-description = "Library for working with Picotron pods and userdata"
-authors = [
-    { name = "Alyssa Dierking", email = "a@dierking.me" }
-]
-requires-python = ">=3.12"
 dependencies = [
     "lz4>=4.4.4",
 ]
+requires-python = ">=3.12"
+authors = [
+    { name = "Alyssa Dierking", email = "a@dierking.me" },
+]
+description = "Library for working with Picotron pods and userdata"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+keywords = ["Picotron", "userdata", "pod", "PXU"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Lua",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: File Formats",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/adierking/picopod"
+Repository = "https://github.com/adierking/picopod.git"
+Issues = "https://github.com/adierking/picopod/issues"
 
 [dependency-groups]
 dev = [
