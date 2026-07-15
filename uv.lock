@@ -330,7 +330,7 @@ wheels = [
 
 [[package]]
 name = "picopod"
-version = "0.1.0.dev3"
+version = "0.1.0b1"
 source = { editable = "." }
 dependencies = [
     { name = "lz4" },

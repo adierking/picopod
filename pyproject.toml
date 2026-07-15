@@ -1,6 +1,6 @@
 [project]
 name = "picopod"
-version = "0.1.0.dev3"
+version = "0.1.0b1"
 description = "Library for working with Picotron pods and userdata"
 authors = [
     { name = "Alyssa Dierking", email = "a@dierking.me" }
