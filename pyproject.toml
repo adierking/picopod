@@ -26,6 +26,7 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/adierking/picopod"
+Documentation = "https://picopod.readthedocs.io/"
 Repository = "https://github.com/adierking/picopod.git"
 Issues = "https://github.com/adierking/picopod/issues"
 

@@ -1,7 +1,7 @@
 # Picopod
 
 🐍 [**PyPI**](https://pypi.org/project/picopod/) &nbsp;&nbsp;&nbsp;
-📘 [**Documentation**](https://picopod.readthedocs.io/en/latest/) &nbsp;&nbsp;&nbsp;
+📘 [**Documentation**](https://picopod.readthedocs.io/) &nbsp;&nbsp;&nbsp;
 🧑‍🎓 [**Examples**](https://github.com/adierking/picopod/tree/main/examples) &nbsp;&nbsp;&nbsp;
 🔧 [**Contributing**](https://github.com/adierking/picopod/blob/main/CONTRIBUTING.md)
 
@@ -56,7 +56,7 @@ And use `unpod()` to deserialize them:
 {'fullscreen': False, 'pixel_scale': 3}
 ```
 
-Refer to the [documentation](https://picopod.readthedocs.io/en/latest/) for more details.
+Refer to the [documentation](https://picopod.readthedocs.io/) for more details.
 
 ## License
 
