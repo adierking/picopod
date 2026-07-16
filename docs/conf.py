@@ -9,6 +9,8 @@
 project = "Picopod"
 copyright = "2026, Alyssa Dierking"
 author = "Alyssa Dierking"
+version = "0.1"
+release = "0.1.0b2"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
