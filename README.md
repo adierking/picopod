@@ -1,18 +1,24 @@
 # Picopod
 
+🐍 [**PyPI**](https://pypi.org/project/picopod/) &nbsp;&nbsp;&nbsp;
+📘 [**Documentation**](https://picopod.readthedocs.io/en/latest/) &nbsp;&nbsp;&nbsp;
+🧑‍🎓 [**Examples**](https://github.com/adierking/picopod/tree/main/examples) &nbsp;&nbsp;&nbsp;
+🔧 [**Contributing**](https://github.com/adierking/picopod/blob/main/CONTRIBUTING.md)
+
 Picopod is a Python library for working with [Picotron](https://www.lexaloffle.com/picotron.php)
 pods, serialized objects which resemble Lua and also support embedded binary data. All pod features
 as of Picotron 0.3.0d are supported, including userdata and compression.
 
-It's mainly intended for writing servers that efficiently interact with Picotron clients and working
-with data files for Picotron programs. It is not a generic serialization library for arbitrary
-Python objects.
+It's useful for working with data files for Picotron programs and writing servers that efficiently
+interact with Picotron clients. It is not a generic serialization library for arbitrary Python
+objects.
 
 Python 3.12 or above is required, and full type annotations for type checkers are included. The only
 external dependency is the [`lz4`](https://pypi.org/project/lz4/) library needed to handle
 compressed pods.
 
-Make sure to read the [contribution guide](CONTRIBUTING.md) before submitting issues or pull requests.
+Make sure to read the [contribution guide](https://github.com/adierking/picopod/blob/main/CONTRIBUTING.md)
+before submitting issues or pull requests.
 
 ## Basic Usage
 
@@ -50,7 +56,7 @@ And use `unpod()` to deserialize them:
 {'fullscreen': False, 'pixel_scale': 3}
 ```
 
-Refer to the documentation for more details. (TODO)
+Refer to the [documentation](https://picopod.readthedocs.io/en/latest/) for more details.
 
 ## License
 

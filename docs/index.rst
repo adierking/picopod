@@ -7,9 +7,9 @@ including userdata and compression.
 
 .. _Picotron: https://www.lexaloffle.com/picotron.php
 
-It's mainly intended for writing servers that efficiently interact with Picotron clients and working
-with data files for Picotron programs. It is not a generic serialization library for arbitrary
-Python objects.
+It's useful for working with data files for Picotron programs and writing servers that efficiently
+interact with Picotron clients. It is not a generic serialization library for arbitrary Python
+objects.
 
 Python 3.12 or above is required, and full type annotations for type checkers are included. The only
 external dependency is the `lz4`_ library needed to handle compressed pods.
