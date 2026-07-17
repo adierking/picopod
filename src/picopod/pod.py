@@ -8,6 +8,8 @@ from contextlib import suppress
 from io import BytesIO
 from typing import Final, cast
 
+from picopod._io import IOBytesExt
+
 from ._tokens import BinaryString, is_identifier
 from ._utils import (
     B64_PREFIX,
@@ -44,12 +46,6 @@ def _escape(s: Buffer) -> bytes:
 
 
 class _PodWriter:
-    _encoding: str
-    _invalid_chars: str
-    _binary: bool
-    _rle: bool
-    _result: bytes
-
     def __init__(
         self,
         encoding: str,
@@ -62,13 +58,13 @@ class _PodWriter:
         self._invalid_chars = invalid_chars
         self._binary = binary
         self._compression_hint = compression_hint
-        self._result = b""
+        self._stream = IOBytesExt.wrap(BytesIO())
 
     def encode(self, s: str) -> bytes:
         return s.encode(self._encoding, errors=self._invalid_chars)
 
-    def write(self, b: bytes) -> None:
-        self._result += b
+    def write(self, b: Buffer) -> None:
+        self._stream.write(b)
 
     def write_bool(self, value: bool) -> None:
         self.write(b"true" if value else b"false")
@@ -158,9 +154,7 @@ class _PodWriter:
             self.write_text_userdata(userdata)
 
     def write_binary_userdata(self, userdata: AnyUserdata) -> None:
-        stream = BytesIO()
-        userdata.write_pxu(stream, self._compression_hint)
-        self.write(stream.getvalue())
+        userdata.write_pxu(self._stream, self._compression_hint)
 
     def write_text_userdata(self, userdata: AnyUserdata) -> None:
         self.write(b"userdata(")
@@ -176,9 +170,7 @@ class _PodWriter:
 
     def write_bytes(self, b: Buffer) -> None:
         if self._binary:
-            stream = BytesIO()
-            BinaryString.write(stream, b)
-            self.write(stream.getvalue())
+            BinaryString.write(self._stream, b)
         else:
             self.write(b'"')
             self.write(_escape(b))
@@ -207,7 +199,7 @@ class _PodWriter:
                 raise TypeError(msg)
 
     def finish(self, *, lz4: bool = False, base64: bool = False) -> bytes:
-        result = self._result
+        result = self._stream.inner.getvalue()
         if lz4:
             compressed = compress_lz4(result)
             header = LZ4_PREFIX + struct.pack("<ii", len(compressed), len(result))

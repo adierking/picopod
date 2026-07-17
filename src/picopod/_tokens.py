@@ -3,7 +3,7 @@ from collections.abc import Buffer, Iterator
 from dataclasses import dataclass
 from enum import Enum, auto
 from io import BytesIO
-from typing import IO, Final, Self, assert_never
+from typing import Final, Self, assert_never
 
 from picopod._io import IOBytesExt
 from picopod.types import AnyUserdata
@@ -98,8 +98,7 @@ class BinaryString:
     encoding: str
 
     @classmethod
-    def read(cls, stream: IO[bytes], encoding: str) -> Self:
-        stream = IOBytesExt(stream)
+    def read(cls, stream: IOBytesExt, encoding: str) -> Self:
         try:
             if stream.read_exact(4) != _BINARY_STRING_MAGIC:
                 raise InvalidBinaryStringError
@@ -109,12 +108,11 @@ class BinaryString:
             raise InvalidBinaryStringError from e
 
     @staticmethod
-    def write(stream: IO[bytes], b: Buffer) -> None:
-        stream = IOBytesExt(stream)
-        stream.write_exact(_BINARY_STRING_MAGIC)
+    def write(stream: IOBytesExt, b: Buffer) -> None:
+        stream.write(_BINARY_STRING_MAGIC)
         with memoryview(b) as view:
             stream.write_u32_le(len(view))
-            stream.write_exact(view)
+            stream.write(view)
 
     def __str__(self) -> str:
         return self.value.decode(self.encoding, errors="replace")
@@ -268,7 +266,7 @@ class Tokenizer(Iterator[Token]):
             self._pos += stream.tell()
             return BinaryUserdata(data)
         elif cur[:4] == _BINARY_STRING_MAGIC:
-            stream = BytesIO(cur)
+            stream = IOBytesExt.wrap(BytesIO(cur))
             bstr = BinaryString.read(stream, self._encoding)
             self._pos += stream.tell()
             return bstr

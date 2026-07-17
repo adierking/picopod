@@ -1,9 +1,8 @@
 """Private I/O helpers."""
 
-import struct
 from collections.abc import Buffer, Iterable, Iterator
 from types import TracebackType
-from typing import IO, Literal, cast
+from typing import IO, Literal, overload
 
 type ByteOrder = Literal["big", "little"]
 
@@ -15,8 +14,22 @@ class IOBytesExt[T: IO[bytes]](IO[bytes]):
     exact numbers of bytes and various integer types.
     """
 
+    inner: T
+
     def __init__(self, inner: T) -> None:
         self.inner = inner
+
+    @overload
+    @staticmethod
+    def wrap[S: IOBytesExt](stream: S) -> S: ...
+
+    @overload
+    @staticmethod
+    def wrap[S: IO[bytes]](stream: S) -> "IOBytesExt[S]": ...
+
+    @staticmethod
+    def wrap[S: IO[bytes]](stream: S) -> "S | IOBytesExt[S]":
+        return stream if isinstance(stream, IOBytesExt) else IOBytesExt(stream)
 
     def read_exact(self, size: int) -> bytes:
         result = b""
@@ -30,15 +43,6 @@ class IOBytesExt[T: IO[bytes]](IO[bytes]):
                 msg = f"Expected {size} bytes"
                 raise EOFError(msg)
         return result
-
-    def write_exact(self, buffer: Buffer) -> None:
-        with memoryview(buffer) as view:
-            while view:
-                written = self.inner.write(view)
-                if written is None:
-                    msg = f"Failed to write {len(view)} bytes"
-                    raise OSError(msg)
-                view = view[written:]
 
     def read_u8(self) -> int:
         return self.read_exact(1)[0]
@@ -82,52 +86,14 @@ class IOBytesExt[T: IO[bytes]](IO[bytes]):
     def read_i32_le(self) -> int:
         return self.read_i32("little")
 
-    def read_u64(self, byteorder: ByteOrder) -> int:
-        return int.from_bytes(self.read_exact(8), byteorder, signed=False)
-
-    def read_u64_be(self) -> int:
-        return self.read_u64("big")
-
-    def read_u64_le(self) -> int:
-        return self.read_u64("little")
-
-    def read_i64(self, byteorder: ByteOrder) -> int:
-        return int.from_bytes(self.read_exact(8), byteorder, signed=True)
-
-    def read_i64_be(self) -> int:
-        return self.read_i64("big")
-
-    def read_i64_le(self) -> int:
-        return self.read_i64("little")
-
-    def read_f32(self, byteorder: ByteOrder) -> float:
-        format = ">f" if byteorder == "big" else "<f"
-        return cast("float", struct.unpack(format, self.read_exact(4))[0])
-
-    def read_f32_le(self) -> float:
-        return self.read_f32("little")
-
-    def read_f32_be(self) -> float:
-        return self.read_f32("big")
-
-    def read_f64(self, byteorder: ByteOrder) -> float:
-        format = ">d" if byteorder == "big" else "<d"
-        return cast("float", struct.unpack(format, self.read_exact(8))[0])
-
-    def read_f64_le(self) -> float:
-        return self.read_f64("little")
-
-    def read_f64_be(self) -> float:
-        return self.read_f64("big")
-
     def write_u8(self, value: int) -> None:
-        self.write_exact(value.to_bytes(1, signed=False))
+        self.inner.write(value.to_bytes(1, signed=False))
 
     def write_i8(self, value: int) -> None:
-        self.write_exact(value.to_bytes(1, signed=True))
+        self.inner.write(value.to_bytes(1, signed=True))
 
     def write_u16(self, value: int, byteorder: ByteOrder) -> None:
-        self.write_exact(value.to_bytes(2, byteorder, signed=False))
+        self.inner.write(value.to_bytes(2, byteorder, signed=False))
 
     def write_u16_be(self, value: int) -> None:
         self.write_u16(value, "big")
@@ -136,7 +102,7 @@ class IOBytesExt[T: IO[bytes]](IO[bytes]):
         self.write_u16(value, "little")
 
     def write_i16(self, value: int, byteorder: ByteOrder) -> None:
-        self.write_exact(value.to_bytes(2, byteorder, signed=True))
+        self.inner.write(value.to_bytes(2, byteorder, signed=True))
 
     def write_i16_be(self, value: int) -> None:
         self.write_i16(value, "big")
@@ -145,7 +111,7 @@ class IOBytesExt[T: IO[bytes]](IO[bytes]):
         self.write_i16(value, "little")
 
     def write_u32(self, value: int, byteorder: ByteOrder) -> None:
-        self.write_exact(value.to_bytes(4, byteorder, signed=False))
+        self.inner.write(value.to_bytes(4, byteorder, signed=False))
 
     def write_u32_be(self, value: int) -> None:
         self.write_u32(value, "big")
@@ -154,51 +120,13 @@ class IOBytesExt[T: IO[bytes]](IO[bytes]):
         self.write_u32(value, "little")
 
     def write_i32(self, value: int, byteorder: ByteOrder) -> None:
-        self.write_exact(value.to_bytes(4, byteorder, signed=True))
+        self.inner.write(value.to_bytes(4, byteorder, signed=True))
 
     def write_i32_be(self, value: int) -> None:
         self.write_i32(value, "big")
 
     def write_i32_le(self, value: int) -> None:
         self.write_i32(value, "little")
-
-    def write_u64(self, value: int, byteorder: ByteOrder) -> None:
-        self.write_exact(value.to_bytes(8, byteorder, signed=False))
-
-    def write_u64_be(self, value: int) -> None:
-        self.write_u64(value, "big")
-
-    def write_u64_le(self, value: int) -> None:
-        self.write_u64(value, "little")
-
-    def write_i64(self, value: int, byteorder: ByteOrder) -> None:
-        self.write_exact(value.to_bytes(8, byteorder, signed=True))
-
-    def write_i64_be(self, value: int) -> None:
-        self.write_i64(value, "big")
-
-    def write_i64_le(self, value: int) -> None:
-        self.write_i64(value, "little")
-
-    def write_f32(self, value: float, byteorder: ByteOrder) -> None:
-        format = ">f" if byteorder == "big" else "<f"
-        self.write_exact(struct.pack(format, value))
-
-    def write_f32_le(self, value: float) -> None:
-        self.write_f32(value, "little")
-
-    def write_f32_be(self, value: float) -> None:
-        self.write_f32(value, "big")
-
-    def write_f64(self, value: float, byteorder: ByteOrder) -> None:
-        format = ">d" if byteorder == "big" else "<d"
-        self.write_exact(struct.pack(format, value))
-
-    def write_f64_le(self, value: float) -> None:
-        self.write_f64(value, "little")
-
-    def write_f64_be(self, value: float) -> None:
-        self.write_f64(value, "big")
 
     @property
     def mode(self) -> str:

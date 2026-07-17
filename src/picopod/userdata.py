@@ -168,8 +168,7 @@ class _PxuHeader:
     depth: int | None
 
     @classmethod
-    def read(cls, stream: IO[bytes]) -> Self:
-        stream = IOBytesExt(stream)
+    def read(cls, stream: IOBytesExt) -> Self:
         if stream.read_exact(4) != PXU_MAGIC:
             raise InvalidPxuError
 
@@ -200,9 +199,8 @@ class _PxuHeader:
 
         return cls(datatype, compression, width, height, depth)
 
-    def write(self, stream: IO[bytes]) -> None:
-        stream = IOBytesExt(stream)
-        stream.write_exact(PXU_MAGIC)
+    def write(self, stream: IOBytesExt) -> None:
+        stream.write(PXU_MAGIC)
 
         dimensions = 1
         dimensions += 1 if self.height is not None else 0
@@ -293,8 +291,7 @@ def _compress_mtf_u8(data: Buffer, bits: int | None) -> array[int]:
     return result
 
 
-def _decompress_mtf_u8(stream: IO[bytes], uncompressed_size: int) -> array[int]:
-    stream = IOBytesExt(stream)
+def _decompress_mtf_u8(stream: IOBytesExt, uncompressed_size: int) -> array[int]:
     index_width = stream.read_u8()
     if not MTF_BITS_MIN <= index_width <= MTF_BITS_MAX:
         msg = f"Invalid MTF index width: {index_width}"
@@ -340,8 +337,7 @@ def _compress_rle_u8(data: Buffer) -> array[int]:
     return result
 
 
-def _decompress_rle_u8(stream: IO[bytes], uncompressed_size: int) -> array[int]:
-    stream = IOBytesExt(stream)
+def _decompress_rle_u8(stream: IOBytesExt, uncompressed_size: int) -> array[int]:
     stream.read_u8()  # reserved? meant to be index_width == 0?
     result = array("B", b"\0" * uncompressed_size)
     with memoryview(result) as view:
@@ -373,8 +369,7 @@ def _compress_rle_i16(data: Sequence[int]) -> array[int]:
     return result
 
 
-def _decompress_rle_i16(stream: IO[bytes], uncompressed_size: int) -> array[int]:
-    stream = IOBytesExt(stream)
+def _decompress_rle_i16(stream: IOBytesExt, uncompressed_size: int) -> array[int]:
     stream.read_u8()  # reserved? meant to be index_width == 0?
     pos = 0
     result = array("h")
@@ -622,6 +617,7 @@ class Userdata[T: (int, float)]:
         Returns:
             The userdata that was read.
         """
+        stream = IOBytesExt.wrap(stream)
         header = _PxuHeader.read(stream)
         if header.depth and header.depth > 1:
             msg = "3D userdata is not supported"
@@ -688,7 +684,7 @@ class Userdata[T: (int, float)]:
             case _:
                 raise UnsupportedTypeError(self._datatype)
 
-        stream = IOBytesExt(stream)
+        stream = IOBytesExt.wrap(stream)
         header = _PxuHeader(
             self._datatype, compression, self._width, self._height, depth=None
         )
@@ -698,17 +694,17 @@ class Userdata[T: (int, float)]:
             case DataType.U8:
                 match header.compression:
                     case Compression.MTF:
-                        stream.write_exact(_compress_mtf_u8(self._data, bits=4))
+                        stream.write(_compress_mtf_u8(self._data, bits=4))
                     case Compression.RLE:
-                        stream.write_exact(_compress_rle_u8(self._data))
+                        stream.write(_compress_rle_u8(self._data))
                     case Compression.RAW:
-                        stream.write_exact(self._data)
+                        stream.write(self._data)
                     case unexpected:
                         assert_never(unexpected)
 
             case DataType.I16:
                 data = cast("array[int]", self._data)
-                stream.write_exact(_compress_rle_i16(data))
+                stream.write(_compress_rle_i16(data))
 
     @overload
     @staticmethod
