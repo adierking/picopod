@@ -411,17 +411,8 @@ class Userdata[T: (int, float)]:
         self: Userdata[int],
         datatype: IntDataType,
         width: int,
-        *,
-        data: bytes | bytearray | Iterable[T] | _Owned[T],
-    ) -> None: ...
-
-    @overload
-    def __init__(
-        self: Userdata[int],
-        datatype: IntDataType,
-        width: int,
-        height: int | None,
-        data: bytes | bytearray | Iterable[T] | _Owned[T],
+        height: int | None = None,
+        data: bytes | bytearray | Iterable[T] | _Owned[T] | None = None,
     ) -> None: ...
 
     @overload
@@ -437,17 +428,8 @@ class Userdata[T: (int, float)]:
         self: Userdata[float],
         datatype: FloatDataType,
         width: int,
-        *,
-        data: Iterable[T] | _Owned[T],
-    ) -> None: ...
-
-    @overload
-    def __init__(
-        self: Userdata[float],
-        datatype: FloatDataType,
-        width: int,
-        height: int | None,
-        data: Iterable[T] | _Owned[T],
+        height: int | None = None,
+        data: Iterable[T] | _Owned[T] | None = None,
     ) -> None: ...
 
     @overload
@@ -455,24 +437,6 @@ class Userdata[T: (int, float)]:
         self,
         datatype: DataType | str,
         *,
-        data: bytes | bytearray | Iterable[T] | _Owned[T],
-    ) -> None: ...
-
-    @overload
-    def __init__(
-        self,
-        datatype: DataType | str,
-        width: int,
-        *,
-        data: bytes | bytearray | Iterable[T] | _Owned[T],
-    ) -> None: ...
-
-    @overload
-    def __init__(
-        self,
-        datatype: DataType | str,
-        width: int,
-        height: int | None,
         data: bytes | bytearray | Iterable[T] | _Owned[T],
     ) -> None: ...
 
@@ -482,6 +446,7 @@ class Userdata[T: (int, float)]:
         datatype: DataType | str,
         width: int,
         height: int | None = None,
+        data: bytes | bytearray | Iterable[T] | _Owned[T] | None = None,
     ) -> None: ...
 
     def __init__(
