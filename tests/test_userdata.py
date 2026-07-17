@@ -179,6 +179,8 @@ def test_userdata_from_rgb() -> None:
 
 
 def test_userdata_errors() -> None:
+    with pytest.raises(ValueError, match="without a width or data"):
+        Userdata("u8")  # ty:ignore[no-matching-overload]
     with pytest.raises(ValueError, match="width must be positive"):
         Userdata("u8", 0)
     with pytest.raises(ValueError, match="width must be positive"):
@@ -187,10 +189,6 @@ def test_userdata_errors() -> None:
         Userdata("u8", 1, 0)
     with pytest.raises(ValueError, match="height must be positive"):
         Userdata("u8", 1, -1)
-    with pytest.raises(ValueError, match="without a width or data"):
-        # TODO: This should be made illegal with type annotations if it can be done
-        # without being too complicated
-        Userdata("u8")
     with pytest.raises(ValueError, match="Expected data with size"):
         Userdata("u8", 10, data=[0] * 9)
     with pytest.raises(ValueError, match="Expected data with size"):

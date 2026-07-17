@@ -402,27 +402,86 @@ class Userdata[T: (int, float)]:
     def __init__(
         self: Userdata[int],
         datatype: IntDataType,
-        width: int | None = None,
-        height: int | None = None,
-        data: bytes | bytearray | Iterable[T] | _Owned[T] | None = None,
+        *,
+        data: bytes | bytearray | Iterable[T] | _Owned[T],
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self: Userdata[int],
+        datatype: IntDataType,
+        width: int,
+        *,
+        data: bytes | bytearray | Iterable[T] | _Owned[T],
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self: Userdata[int],
+        datatype: IntDataType,
+        width: int,
+        height: int | None,
+        data: bytes | bytearray | Iterable[T] | _Owned[T],
     ) -> None: ...
 
     @overload
     def __init__(
         self: Userdata[float],
         datatype: FloatDataType,
-        width: int | None = None,
-        height: int | None = None,
-        data: Iterable[T] | _Owned[T] | None = None,
+        *,
+        data: Iterable[T] | _Owned[T],
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self: Userdata[float],
+        datatype: FloatDataType,
+        width: int,
+        *,
+        data: Iterable[T] | _Owned[T],
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self: Userdata[float],
+        datatype: FloatDataType,
+        width: int,
+        height: int | None,
+        data: Iterable[T] | _Owned[T],
     ) -> None: ...
 
     @overload
     def __init__(
         self,
         datatype: DataType | str,
-        width: int | None = None,
+        *,
+        data: bytes | bytearray | Iterable[T] | _Owned[T],
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self,
+        datatype: DataType | str,
+        width: int,
+        *,
+        data: bytes | bytearray | Iterable[T] | _Owned[T],
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self,
+        datatype: DataType | str,
+        width: int,
+        height: int | None,
+        data: bytes | bytearray | Iterable[T] | _Owned[T],
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self,
+        datatype: DataType | str,
+        width: int,
         height: int | None = None,
-        data: bytes | bytearray | Iterable[T] | _Owned[T] | None = None,
     ) -> None: ...
 
     def __init__(
