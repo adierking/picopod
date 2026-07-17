@@ -1,6 +1,6 @@
 [project]
 name = "picopod"
-version = "0.1.0b4"
+version = "0.1.0b5"
 dependencies = [
     "lz4>=4.4.4",
 ]
