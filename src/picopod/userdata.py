@@ -246,21 +246,9 @@ def _write_extended_count(out: array[int], count: int) -> None:
     out.append(count)
 
 
-def _estimate_mtf_bits(data: Buffer) -> int:
-    used_bytes = list(range(256))
-    with memoryview(data) as view:
-        for b in view:
-            used_bytes[b] = 1
-    used_count = sum(used_bytes)
-    return max(MTF_BITS_MIN, min(MTF_BITS_MAX, used_count.bit_length()))
-
-
-def _compress_mtf_u8(data: Buffer, bits: int | None) -> array[int]:
+def _compress_mtf_u8(data: Buffer, bits: int) -> array[int]:
     result = array("B")
-    if bits is None:
-        index_width = _estimate_mtf_bits(data)
-    else:
-        index_width = max(MTF_BITS_MIN, min(MTF_BITS_MAX, bits))
+    index_width = max(MTF_BITS_MIN, min(MTF_BITS_MAX, bits))
     result.append(index_width)
     max_index = (1 << index_width) - 1
     max_count = 1 << (8 - index_width)
@@ -321,8 +309,10 @@ def _decompress_mtf_u8(stream: IOBytesExt, uncompressed_size: int) -> array[int]
 
 
 def _compress_rle_u8(data: Buffer) -> array[int]:
+    # Technically RLE is just MTF with index_width = 0, but separating the codepaths is
+    # more efficient and easier to reason about.
     result = array("B")
-    result.append(0)  # reserved? meant to be index_width == 0?
+    result.append(0)  # index_width = 0
     with memoryview(data) as view:
         while view:
             value = view[0]
@@ -338,7 +328,7 @@ def _compress_rle_u8(data: Buffer) -> array[int]:
 
 
 def _decompress_rle_u8(stream: IOBytesExt, uncompressed_size: int) -> array[int]:
-    stream.read_u8()  # reserved? meant to be index_width == 0?
+    _unused_index_width = stream.read_u8()
     result = array("B", b"\0" * uncompressed_size)
     with memoryview(result) as view:
         while view:
@@ -353,7 +343,7 @@ def _decompress_rle_u8(stream: IOBytesExt, uncompressed_size: int) -> array[int]
 
 def _compress_rle_i16(data: Sequence[int]) -> array[int]:
     result = array("B")
-    result.append(0)  # reserved? meant to be index_width == 0?
+    result.append(0)  # index_width = 0
     pos = 0
     while pos < len(data):
         value = data[pos]
@@ -370,7 +360,7 @@ def _compress_rle_i16(data: Sequence[int]) -> array[int]:
 
 
 def _decompress_rle_i16(stream: IOBytesExt, uncompressed_size: int) -> array[int]:
-    stream.read_u8()  # reserved? meant to be index_width == 0?
+    _unused_index_width = stream.read_u8()
     pos = 0
     result = array("h")
     while pos < uncompressed_size:
