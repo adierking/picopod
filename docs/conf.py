@@ -3,7 +3,7 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-from importlib.metadata import version
+from importlib.metadata import version as get_version
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -11,7 +11,7 @@ from importlib.metadata import version
 project = "Picopod"
 copyright = "2026, Alyssa Dierking"
 author = "Alyssa Dierking"
-release = version("picopod")
+release = get_version("picopod")
 version = ".".join(release.split(".")[:2])
 
 # -- General configuration ---------------------------------------------------
