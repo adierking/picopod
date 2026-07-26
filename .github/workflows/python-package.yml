@@ -6,12 +6,18 @@ name: Python package
 on:
   push:
     branches: [ "main" ]
+    tags: [ "v*" ]
+    paths-ignore:
+    - '.gitignore'
+    - '*.md'
+    - '*.txt'
+    - '.vscode/**'
   pull_request:
     branches: [ "main" ]
 
 jobs:
   build:
-
+    name: "Build"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -55,3 +61,48 @@ jobs:
         path: dist/*.tar.gz
         archive: false
         if-no-files-found: error
+
+  publish-pypi:
+    name: "Publish to PyPI"
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/picopod
+    permissions:
+      id-token: write
+
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v8
+      with:
+        path: dist/
+        merge-multiple: true
+        skip-decompress: true
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish-release:
+    name: "Publish GitHub Release"
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v8
+      with:
+        merge-multiple: true
+        skip-decompress: true
+    - name: Create release
+      uses: softprops/action-gh-release@v3
+      with:
+        name: Picopod ${{ github.ref_name }}
+        body: This release is from [automated build \#${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+        draft: true
+        files: |
+          *.tar.gz
+          *.whl
