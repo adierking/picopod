@@ -33,9 +33,13 @@ jobs:
       run: |
         uv run ruff check
         uv run ty check
-    - name: Test with pytest
+    - name: Run unit tests
       run: |
         uv run pytest
+    - name: Run doctests
+      run: |
+        source .venv/bin/activate
+        make -C docs doctest
     - name: Build package
       run: |
         uv build
